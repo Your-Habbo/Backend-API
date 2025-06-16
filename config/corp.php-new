@@ -1,0 +1,313 @@
+<?php
+// config/cors.php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Origin Resource Sharing (CORS) Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'auth/*',
+        'oauth/*',
+        'webhooks/*'
+    ],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => [
+        'https://frontend-yourhabbo.codeneko.co',
+        'https://api-yourhabbo.codeneko.co',
+    ],
+
+    'allowed_origins_patterns' => [
+        // Allow all subdomains of codeneko.co for development
+        '/^https:\/\/.*\.codeneko\.co$/',
+    ],
+
+    'allowed_headers' => [
+        '*',
+        'Accept',
+        'Authorization',
+        'Content-Type',
+        'X-Requested-With',
+        'X-CSRF-TOKEN',
+        'X-XSRF-TOKEN',
+        'X-API-Key',
+        'Origin',
+        'Referer',
+    ],
+
+    'exposed_headers' => [
+        'X-RateLimit-Limit',
+        'X-RateLimit-Remaining',
+        'X-RateLimit-Reset',
+    ],
+
+    'max_age' => 86400, // 24 hours
+
+    'supports_credentials' => true,
+];
+
+// config/sanctum.php
+
+<?php
+
+use Laravel\Sanctum\Sanctum;
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Stateful Domains
+    |--------------------------------------------------------------------------
+    */
+
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+        '%s%s%s',
+        'frontend-yourhabbo.codeneko.co,api-yourhabbo.codeneko.co',
+        env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : '',
+        env('FRONTEND_URL') ? ','.parse_url(env('FRONTEND_URL'), PHP_URL_HOST) : ''
+    ))),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Guards
+    |--------------------------------------------------------------------------
+    */
+
+    'guard' => ['web'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Expiration Minutes
+    |--------------------------------------------------------------------------
+    */
+
+    'expiration' => env('SANCTUM_EXPIRATION', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Token Prefix
+    |--------------------------------------------------------------------------
+    */
+
+    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanctum Middleware
+    |--------------------------------------------------------------------------
+    */
+
+    'middleware' => [
+        'authenticate_session' => Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
+        'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
+        'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+    ],
+];
+
+// config/session.php (updated sections)
+
+<?php
+
+use Illuminate\Support\Str;
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Default Session Driver
+    |--------------------------------------------------------------------------
+    */
+
+    'driver' => env('SESSION_DRIVER', 'database'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Lifetime
+    |--------------------------------------------------------------------------
+    */
+
+    'lifetime' => env('SESSION_LIFETIME', 120),
+
+    'expire_on_close' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Encryption
+    |--------------------------------------------------------------------------
+    */
+
+    'encrypt' => env('SESSION_ENCRYPT', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session File Location
+    |--------------------------------------------------------------------------
+    */
+
+    'files' => storage_path('framework/sessions'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Connection
+    |--------------------------------------------------------------------------
+    */
+
+    'connection' => env('SESSION_CONNECTION'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database Table
+    |--------------------------------------------------------------------------
+    */
+
+    'table' => 'user_sessions',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Store
+    |--------------------------------------------------------------------------
+    */
+
+    'store' => env('SESSION_STORE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Sweeping Lottery
+    |--------------------------------------------------------------------------
+    */
+
+    'lottery' => [2, 100],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Name
+    |--------------------------------------------------------------------------
+    */
+
+    'cookie' => env(
+        'SESSION_COOKIE',
+        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Path
+    |--------------------------------------------------------------------------
+    */
+
+    'path' => env('SESSION_PATH', '/'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Domain
+    |--------------------------------------------------------------------------
+    */
+
+    'domain' => env('SESSION_DOMAIN', '.codeneko.co'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTPS Only Cookies
+    |--------------------------------------------------------------------------
+    */
+
+    'secure' => env('SESSION_SECURE_COOKIE', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Access Only
+    |--------------------------------------------------------------------------
+    */
+
+    'http_only' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Same-Site Cookies
+    |--------------------------------------------------------------------------
+    */
+
+    'same_site' => env('SESSION_SAME_SITE', 'none'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Partitioned Cookies
+    |--------------------------------------------------------------------------
+    */
+
+    'partitioned' => false,
+];
+
+// config/services.php (updated OAuth sections)
+
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Third Party Services
+    |--------------------------------------------------------------------------
+    */
+
+    'postmark' => [
+        'token' => env('POSTMARK_TOKEN'),
+    ],
+
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'resend' => [
+        'key' => env('RESEND_KEY'),
+    ],
+
+    'slack' => [
+        'notifications' => [
+            'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
+            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | OAuth Providers Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'https://api-yourhabbo.codeneko.co/api/auth/oauth/google/callback'),
+    ],
+
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        'redirect' => env('DISCORD_REDIRECT_URI', 'https://api-yourhabbo.codeneko.co/api/auth/oauth/discord/callback'),
+    ],
+
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_REDIRECT_URI', 'https://api-yourhabbo.codeneko.co/api/auth/oauth/github/callback'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | YourHabbo Specific Services
+    |--------------------------------------------------------------------------
+    */
+
+    'yourhabbo' => [
+        'frontend_url' => env('FRONTEND_URL', 'https://frontend-yourhabbo.codeneko.co'),
+        'api_url' => env('APP_URL', 'https://api-yourhabbo.codeneko.co'),
+        'version' => env('YOURHABBO_VERSION', '1.0.0'),
+        'environment' => env('YOURHABBO_ENVIRONMENT', 'development'),
+    ],
+];
